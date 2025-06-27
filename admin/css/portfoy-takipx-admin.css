@@ -1,0 +1,305 @@
+/* Admin CSS for Portföy TakipX */
+
+.portfoy-takipx-admin-container {
+    max-width: 1200px;
+}
+
+.portfoy-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.summary-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #646970;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.summary-card .value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #1d2327;
+    margin-bottom: 5px;
+}
+
+.summary-card .change {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.summary-card .change.positive {
+    color: #00a32a;
+}
+
+.summary-card .change.negative {
+    color: #d63638;
+}
+
+.portfoy-tabs {
+    border-bottom: 1px solid #c3c4c7;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    margin-right: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #646970;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    color: #2271b1;
+}
+
+.tab-button.active {
+    color: #2271b1;
+    border-bottom-color: #2271b1;
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.assets-table-container {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.assets-table-container table {
+    margin: 0;
+    border: none;
+}
+
+.add-asset-form {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+}
+
+.add-asset-form h3 {
+    margin-top: 0;
+}
+
+.analytics-container {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+}
+
+.analytics-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.chart-container {
+    text-align: center;
+}
+
+.chart-container h4 {
+    margin-bottom: 15px;
+    color: #1d2327;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    height: 300px;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 4px;
+    width: 80%;
+    max-width: 600px;
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+}
+
+/* Asset Type Badge */
+.asset-type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.asset-type-badge.stock {
+    background-color: #2271b1;
+}
+
+.asset-type-badge.crypto {
+    background-color: #f77b00;
+}
+
+.asset-type-badge.forex {
+    background-color: #00a32a;
+}
+
+.asset-type-badge.commodity {
+    background-color: #b32d2e;
+}
+
+.asset-type-badge.bond {
+    background-color: #6c2eb1;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.action-button {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.action-button.edit {
+    background-color: #2271b1;
+    color: #fff;
+}
+
+.action-button.delete {
+    background-color: #d63638;
+    color: #fff;
+}
+
+.action-button:hover {
+    opacity: 0.8;
+}
+
+/* Profit/Loss Styling */
+.profit-positive {
+    color: #00a32a;
+    font-weight: 600;
+}
+
+.profit-negative {
+    color: #d63638;
+    font-weight: 600;
+}
+
+.profit-neutral {
+    color: #646970;
+}
+
+/* Loading States */
+.spinner {
+    visibility: hidden;
+    float: none;
+    margin-left: 10px;
+}
+
+.spinner.is-active {
+    visibility: visible;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .portfoy-summary-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .analytics-charts {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .assets-table-container {
+        overflow-x: auto;
+    }
+}
+
+/* Form Improvements */
+.form-table input[type="text"],
+.form-table input[type="number"],
+.form-table input[type="datetime-local"],
+.form-table select {
+    width: 100%;
+    max-width: 300px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Status Messages */
+.notice.portfoy-notice {
+    margin: 15px 0;
+}
+
+.notice.portfoy-notice.notice-success {
+    border-left-color: #00a32a;
+}
+
+.notice.portfoy-notice.notice-error {
+    border-left-color: #d63638;
+}
