@@ -16,13 +16,13 @@ if (!defined('ABSPATH')) {
         <h1 class="portfoy-title">Portföy TakipX</h1>
         <div class="portfoy-actions">
             <button type="button" class="btn btn-secondary" data-modal-target="settings-modal" data-tooltip="Ayarlar">
-                ⚙️ Ayarlar
+                Ayarlar
             </button>
             <button type="button" class="btn btn-success" data-modal-target="add-asset-modal" data-tooltip="Yeni varlık ekle (Ctrl+N)">
-                ➕ Varlık Ekle
+                Varlık Ekle
             </button>
             <button type="button" class="btn btn-primary" onclick="PortfoyTakipX.refreshPortfolioData()" data-tooltip="Verileri yenile (Ctrl+R)">
-                🔄 Yenile
+                Yenile
             </button>
         </div>
     </div>
@@ -30,56 +30,56 @@ if (!defined('ABSPATH')) {
     <!-- Summary Cards Grid -->
     <div class="summary-grid">
         <div class="summary-card">
-            <div class="summary-card-icon">💼</div>
+            <div class="summary-card-icon portfolio-icon">PF</div>
             <div class="summary-card-title">Toplam Portföy Değeri</div>
             <div class="summary-card-value" id="total-value-value">₺0.00</div>
             <div class="summary-card-change" id="total-value-change">
-                <span class="change-neutral">📊 Hesaplanıyor...</span>
+                <span class="change-neutral">Hesaplanıyor...</span>
             </div>
         </div>
 
         <div class="summary-card">
-            <div class="summary-card-icon">💰</div>
+            <div class="summary-card-icon investment-icon">INV</div>
             <div class="summary-card-title">Toplam Yatırım</div>
             <div class="summary-card-value" id="total-investment-value">₺0.00</div>
             <div class="summary-card-change">
-                <span class="change-neutral">💵 Başlangıç sermayesi</span>
+                <span class="change-neutral">Başlangıç sermayesi</span>
             </div>
         </div>
 
         <div class="summary-card">
-            <div class="summary-card-icon">📈</div>
+            <div class="summary-card-icon profit-icon">P&L</div>
             <div class="summary-card-title">Kar/Zarar</div>
             <div class="summary-card-value" id="profit-loss-value">₺0.00</div>
             <div class="summary-card-change" id="profit-loss-change">
-                <span class="change-neutral">📊 Hesaplanıyor...</span>
+                <span class="change-neutral">Hesaplanıyor...</span>
             </div>
         </div>
 
         <div class="summary-card">
-            <div class="summary-card-icon">📊</div>
+            <div class="summary-card-icon assets-icon">AST</div>
             <div class="summary-card-title">Toplam Varlık</div>
             <div class="summary-card-value" id="assets-count-value">0</div>
             <div class="summary-card-change">
-                <span class="change-neutral">🎯 Aktif pozisyonlar</span>
+                <span class="change-neutral">Aktif pozisyonlar</span>
             </div>
         </div>
 
         <div class="summary-card">
-            <div class="summary-card-icon">⚖️</div>
+            <div class="summary-card-icon risk-icon">RSK</div>
             <div class="summary-card-title">Risk Skoru</div>
             <div class="summary-card-value" id="risk-score-value">-</div>
             <div class="summary-card-change">
-                <span class="change-neutral">📏 Volatilite analizi</span>
+                <span class="change-neutral">Volatilite analizi</span>
             </div>
         </div>
 
         <div class="summary-card">
-            <div class="summary-card-icon">🎯</div>
+            <div class="summary-card-icon diversification-icon">DIV</div>
             <div class="summary-card-title">Çeşitlendirme</div>
             <div class="summary-card-value" id="diversification-value">-</div>
             <div class="summary-card-change">
-                <span class="change-neutral">📈 Sharpe oranı</span>
+                <span class="change-neutral">Sharpe oranı</span>
             </div>
         </div>
     </div>
@@ -87,7 +87,7 @@ if (!defined('ABSPATH')) {
     <!-- Quick Filters -->
     <div class="card mb-lg">
         <div class="card-header">
-            <h3 class="card-title">🔍 Filtreler ve Arama</h3>
+            <h3 class="card-title">Filtreler ve Arama</h3>
         </div>
         <div class="card-body">
             <div class="filter-grid" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: var(--spacing-md); align-items: end;">

@@ -258,11 +258,11 @@ $user_assets = $public->get_user_assets( $user_id, '', 10 );
                                             <?php
                                             $icon_class = '';
                                             switch ( $asset->asset_type ) {
-                                                case 'stock': $icon_class = '📈'; break;
-                                                case 'crypto': $icon_class = '₿'; break;
-                                                case 'forex': $icon_class = '💱'; break;
-                                                case 'commodity': $icon_class = '🥇'; break;
-                                                default: $icon_class = '💰'; break;
+                                                case 'stock': $icon_class = 'ST'; break;
+                                                case 'crypto': $icon_class = 'CR'; break;
+                                                case 'forex': $icon_class = 'FX'; break;
+                                                case 'commodity': $icon_class = 'CM'; break;
+                                                default: $icon_class = 'AS'; break;
                                             }
                                             echo $icon_class;
                                             ?>
@@ -374,7 +374,7 @@ $user_assets = $public->get_user_assets( $user_id, '', 10 );
                     <p class="news-excerpt">Bitcoin ve diğer kripto paralar bugün güçlü bir yükseliş trendinde...</p>
                 </div>
                 <div class="news-image">
-                    <div class="placeholder-image">📈</div>
+                    <div class="placeholder-image">CHART</div>
                 </div>
             </div>
             
@@ -428,11 +428,11 @@ $user_assets = $public->get_user_assets( $user_id, '', 10 );
                         <label for="asset-type" class="form-label">Varlık Türü</label>
                         <select id="asset-type" name="asset_type" class="form-select" required>
                             <option value="">Seçiniz...</option>
-                            <option value="stock">📈 Hisse Senedi</option>
-                            <option value="crypto">₿ Kripto Para</option>
-                            <option value="forex">💱 Döviz</option>
-                            <option value="commodity">🥇 Emtia</option>
-                            <option value="bond">📋 Tahvil</option>
+                            <option value="stock">Hisse Senedi</option>
+                            <option value="crypto">Kripto Para</option>
+                            <option value="forex">Döviz</option>
+                            <option value="commodity">Emtia</option>
+                            <option value="bond">Tahvil</option>
                         </select>
                     </div>
                     

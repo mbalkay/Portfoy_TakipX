@@ -395,7 +395,7 @@
     top: 50%;
     transform: translateY(-50%);
     color: white;
-    font-size: 28px;
+    font-size: 20px;
     font-weight: bold;
     cursor: pointer;
     opacity: 0.8;
@@ -762,7 +762,7 @@
 .close {
     color: #aaa;
     float: right;
-    font-size: 28px;
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     position: absolute;
@@ -889,6 +889,41 @@
 .form-table select {
     width: 100%;
     max-width: 300px;
+}
+
+/* Modern Asset Icon Styling */
+.asset-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #e0ebff, #f0f5ff);
+    color: #4338ca;
+    border: 1px solid #c7d8ff;
+    margin-right: 8px;
+}
+
+/* Fix for any oversized elements */
+.portfoy-takipx-admin-container .dashicons,
+.portfoy-takipx-admin-container .dashicons-before:before {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+}
+
+/* Consistent icon sizing across admin */
+.admin-icon,
+.summary-icon,
+.card-icon {
+    max-width: 24px;
+    max-height: 24px;
+    font-size: 14px;
 }
 
 .text-center {
