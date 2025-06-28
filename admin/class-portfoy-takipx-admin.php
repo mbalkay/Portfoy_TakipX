@@ -117,20 +117,6 @@ class Portfoy_TakipX_Admin {
 	}
 
 	/**
-	 * Main admin page.
-	 */
-	public function admin_page() {
-		include_once PORTFOY_TAKIPX_PLUGIN_DIR . 'admin/partials/portfoy-takipx-admin-display.php';
-	}
-
-	/**
-	 * Settings page.
-	 */
-	public function settings_page() {
-		include_once PORTFOY_TAKIPX_PLUGIN_DIR . 'admin/partials/portfoy-takipx-admin-settings.php';
-	}
-
-	/**
 	 * API section callback.
 	 */
 	public function api_section_callback() {

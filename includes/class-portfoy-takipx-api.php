@@ -614,6 +614,201 @@ class Portfoy_TakipX_API {
 	}
 
 	/**
+	 * Get portfolio allocation.
+	 */
+	public function get_portfolio_allocation( $request ) {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'portfoy_takipx_assets';
+		$user_id = get_current_user_id();
+
+		$allocation = $wpdb->get_results( $wpdb->prepare(
+			"SELECT 
+				asset_type,
+				SUM(quantity * current_price) as current_value,
+				COUNT(*) as asset_count
+			FROM $table_name 
+			WHERE user_id = %d 
+			GROUP BY asset_type",
+			$user_id
+		) );
+
+		$total_value = 0;
+		foreach ( $allocation as $item ) {
+			$total_value += $item->current_value;
+		}
+
+		// Calculate percentages
+		foreach ( $allocation as $item ) {
+			$item->percentage = $total_value > 0 ? ( $item->current_value / $total_value ) * 100 : 0;
+		}
+
+		return rest_ensure_response( array(
+			'allocation' => $allocation,
+			'total_value' => $total_value,
+		) );
+	}
+
+	/**
+	 * Get risk analysis.
+	 */
+	public function get_risk_analysis( $request ) {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'portfoy_takipx_assets';
+		$user_id = get_current_user_id();
+
+		$assets = $wpdb->get_results( $wpdb->prepare(
+			"SELECT * FROM $table_name WHERE user_id = %d",
+			$user_id
+		) );
+
+		$total_value = 0;
+		$portfolio_return = 0;
+		$risk_scores = array();
+
+		foreach ( $assets as $asset ) {
+			$value = $asset->quantity * $asset->current_price;
+			$return_pct = ( $asset->current_price - $asset->purchase_price ) / $asset->purchase_price * 100;
+			
+			$total_value += $value;
+			$portfolio_return += $return_pct * $value;
+
+			// Simple risk scoring based on asset type
+			$risk_score = $this->get_asset_risk_score( $asset->asset_type );
+			$risk_scores[] = $risk_score * ( $value / max( $total_value, 1 ) );
+		}
+
+		$avg_return = $total_value > 0 ? $portfolio_return / $total_value : 0;
+		$avg_risk = array_sum( $risk_scores );
+
+		return rest_ensure_response( array(
+			'average_return' => $avg_return,
+			'risk_score' => $avg_risk,
+			'risk_level' => $this->get_risk_level( $avg_risk ),
+			'recommendations' => $this->get_risk_recommendations( $avg_risk ),
+		) );
+	}
+
+	/**
+	 * Get transactions.
+	 */
+	public function get_transactions( $request ) {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'portfoy_takipx_transactions';
+		$user_id = get_current_user_id();
+
+		$page = $request->get_param( 'page' ) ?? 1;
+		$per_page = $request->get_param( 'per_page' ) ?? 20;
+		$offset = ( $page - 1 ) * $per_page;
+
+		$transactions = $wpdb->get_results( $wpdb->prepare(
+			"SELECT * FROM $table_name 
+			WHERE user_id = %d 
+			ORDER BY transaction_date DESC 
+			LIMIT %d OFFSET %d",
+			$user_id, $per_page, $offset
+		) );
+
+		$total = $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM $table_name WHERE user_id = %d",
+			$user_id
+		) );
+
+		return rest_ensure_response( array(
+			'transactions' => $transactions,
+			'total' => intval( $total ),
+			'page' => $page,
+			'per_page' => $per_page,
+		) );
+	}
+
+	/**
+	 * Create transaction.
+	 */
+	public function create_transaction( $request ) {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'portfoy_takipx_transactions';
+		$user_id = get_current_user_id();
+
+		$data = array(
+			'user_id' => $user_id,
+			'asset_id' => intval( $request['asset_id'] ),
+			'transaction_type' => sanitize_text_field( $request['transaction_type'] ),
+			'quantity' => floatval( $request['quantity'] ),
+			'price' => floatval( $request['price'] ),
+			'transaction_date' => sanitize_text_field( $request['transaction_date'] ),
+			'commission' => floatval( $request['commission'] ?? 0 ),
+			'notes' => sanitize_textarea_field( $request['notes'] ?? '' ),
+		);
+
+		$result = $wpdb->insert( $table_name, $data );
+
+		if ( $result === false ) {
+			return new WP_Error( 'insert_failed', 'Failed to create transaction', array( 'status' => 500 ) );
+		}
+
+		$data['id'] = $wpdb->insert_id;
+		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Get top performers.
+	 */
+	public function get_top_performers( $request ) {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'portfoy_takipx_assets';
+		$user_id = get_current_user_id();
+
+		$limit = $request->get_param( 'limit' ) ?? 10;
+
+		$performers = $wpdb->get_results( $wpdb->prepare(
+			"SELECT 
+				*,
+				(current_price - purchase_price) / purchase_price * 100 as return_percentage,
+				(quantity * current_price - quantity * purchase_price) as profit_loss
+			FROM $table_name 
+			WHERE user_id = %d 
+			ORDER BY return_percentage DESC 
+			LIMIT %d",
+			$user_id, $limit
+		) );
+
+		return rest_ensure_response( array(
+			'top_performers' => $performers,
+			'limit' => $limit,
+		) );
+	}
+
+	/**
+	 * Get monthly performance.
+	 */
+	public function get_monthly_performance( $request ) {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'portfoy_takipx_portfolio_snapshots';
+		$user_id = get_current_user_id();
+
+		$months = $request->get_param( 'months' ) ?? 12;
+
+		$performance = $wpdb->get_results( $wpdb->prepare(
+			"SELECT 
+				DATE_FORMAT(snapshot_date, '%%Y-%%m') as month,
+				AVG(total_value) as avg_value,
+				MAX(total_value) as max_value,
+				MIN(total_value) as min_value
+			FROM $table_name 
+			WHERE user_id = %d 
+			AND snapshot_date >= DATE_SUB(NOW(), INTERVAL %d MONTH)
+			GROUP BY DATE_FORMAT(snapshot_date, '%%Y-%%m')
+			ORDER BY month ASC",
+			$user_id, $months
+		) );
+
+		return rest_ensure_response( array(
+			'monthly_performance' => $performance,
+			'months' => $months,
+		) );
+	}
+
+	/**
 	 * Get current price for an asset.
 	 */
 	public function get_asset_price( $request ) {
@@ -781,6 +976,67 @@ class Portfoy_TakipX_API {
 	}
 
 	/**
+	 * Get risk score for asset type.
+	 */
+	private function get_asset_risk_score( $asset_type ) {
+		$risk_scores = array(
+			'bond' => 1,
+			'stock' => 3,
+			'forex' => 4,
+			'commodity' => 4,
+			'crypto' => 5,
+		);
+
+		return $risk_scores[ $asset_type ] ?? 3;
+	}
+
+	/**
+	 * Get risk level description.
+	 */
+	private function get_risk_level( $risk_score ) {
+		if ( $risk_score <= 1.5 ) {
+			return 'Low';
+		} elseif ( $risk_score <= 2.5 ) {
+			return 'Low-Medium';
+		} elseif ( $risk_score <= 3.5 ) {
+			return 'Medium';
+		} elseif ( $risk_score <= 4.5 ) {
+			return 'Medium-High';
+		} else {
+			return 'High';
+		}
+	}
+
+	/**
+	 * Get risk recommendations.
+	 */
+	private function get_risk_recommendations( $risk_score ) {
+		if ( $risk_score <= 2 ) {
+			return array(
+				'Consider adding some growth assets to your portfolio',
+				'Your portfolio is very conservative',
+			);
+		} elseif ( $risk_score <= 3 ) {
+			return array(
+				'Well-balanced portfolio',
+				'Consider regular rebalancing',
+			);
+		} elseif ( $risk_score <= 4 ) {
+			return array(
+				'Higher risk portfolio',
+				'Consider adding some stable assets',
+				'Monitor volatility regularly',
+			);
+		} else {
+			return array(
+				'Very high risk portfolio',
+				'Consider diversifying with lower-risk assets',
+				'Review your risk tolerance',
+			);
+		}
+	}
+
+	/**
 	 * Validation functions
 	 */
 	public function validate_asset_type( $value ) {
@@ -794,125 +1050,6 @@ class Portfoy_TakipX_API {
 
 	public function validate_date( $value ) {
 		return strtotime( $value ) !== false;
-	}
-}
-
-		$data = array(
-			'user_id' => $user_id,
-			'asset_type' => sanitize_text_field( $request['asset_type'] ),
-			'symbol' => sanitize_text_field( $request['symbol'] ),
-			'name' => sanitize_text_field( $request['name'] ),
-			'quantity' => floatval( $request['quantity'] ),
-			'purchase_price' => floatval( $request['purchase_price'] ),
-			'current_price' => floatval( $request['current_price'] ?? 0 ),
-			'purchase_date' => sanitize_text_field( $request['purchase_date'] ),
-		);
-
-		$result = $wpdb->insert( $table_name, $data );
-
-		if ( $result === false ) {
-			return new WP_Error( 'insert_failed', 'Failed to create asset', array( 'status' => 500 ) );
-		}
-
-		$data['id'] = $wpdb->insert_id;
-		return rest_ensure_response( $data );
-	}
-
-	/**
-	 * Update an existing asset.
-	 */
-	public function update_asset( $request ) {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'portfoy_takipx_assets';
-		$user_id = get_current_user_id();
-		$asset_id = $request['id'];
-
-		// Check if asset belongs to user
-		$existing = $wpdb->get_row( $wpdb->prepare(
-			"SELECT * FROM $table_name WHERE id = %d AND user_id = %d",
-			$asset_id, $user_id
-		) );
-
-		if ( ! $existing ) {
-			return new WP_Error( 'not_found', 'Asset not found', array( 'status' => 404 ) );
-		}
-
-		$data = array(
-			'asset_type' => sanitize_text_field( $request['asset_type'] ),
-			'symbol' => sanitize_text_field( $request['symbol'] ),
-			'name' => sanitize_text_field( $request['name'] ),
-			'quantity' => floatval( $request['quantity'] ),
-			'purchase_price' => floatval( $request['purchase_price'] ),
-			'current_price' => floatval( $request['current_price'] ?? 0 ),
-			'purchase_date' => sanitize_text_field( $request['purchase_date'] ),
-		);
-
-		$result = $wpdb->update( $table_name, $data, array( 'id' => $asset_id, 'user_id' => $user_id ) );
-
-		if ( $result === false ) {
-			return new WP_Error( 'update_failed', 'Failed to update asset', array( 'status' => 500 ) );
-		}
-
-		$data['id'] = $asset_id;
-		return rest_ensure_response( $data );
-	}
-
-	/**
-	 * Delete an asset.
-	 */
-	public function delete_asset( $request ) {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'portfoy_takipx_assets';
-		$user_id = get_current_user_id();
-		$asset_id = $request['id'];
-
-		$result = $wpdb->delete( $table_name, array( 'id' => $asset_id, 'user_id' => $user_id ) );
-
-		if ( $result === false ) {
-			return new WP_Error( 'delete_failed', 'Failed to delete asset', array( 'status' => 500 ) );
-		}
-
-		return rest_ensure_response( array( 'success' => true, 'id' => $asset_id ) );
-	}
-
-	/**
-	 * Get portfolio summary.
-	 */
-	public function get_portfolio_summary( $request ) {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'portfoy_takipx_assets';
-		$user_id = get_current_user_id();
-
-		$summary = $wpdb->get_results( $wpdb->prepare(
-			"SELECT 
-				asset_type,
-				COUNT(*) as total_assets,
-				SUM(quantity * purchase_price) as total_invested,
-				SUM(quantity * current_price) as current_value
-			FROM $table_name 
-			WHERE user_id = %d 
-			GROUP BY asset_type",
-			$user_id
-		) );
-
-		$total_invested = 0;
-		$total_current_value = 0;
-
-		foreach ( $summary as $item ) {
-			$total_invested += $item->total_invested;
-			$total_current_value += $item->current_value;
-		}
-
-		$profit_loss = $total_current_value - $total_invested;
-		$profit_loss_percentage = $total_invested > 0 ? ( $profit_loss / $total_invested ) * 100 : 0;
-
-		return rest_ensure_response( array(
-			'summary_by_type' => $summary,
-			'total_invested' => $total_invested,
-			'current_value' => $total_current_value,
-			'profit_loss' => $profit_loss,
-			'profit_loss_percentage' => $profit_loss_percentage,
-		) );
 	}
 }
 
