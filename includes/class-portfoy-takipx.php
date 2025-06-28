@@ -53,7 +53,25 @@ class Portfoy_TakipX {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_admin_menu' );
+		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_reports_menu' );
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'admin_init' );
+
+		// AJAX handlers
+		$this->loader->add_action( 'wp_ajax_portfoy_get_portfolio_summary', $plugin_admin, 'ajax_get_portfolio_summary' );
+		$this->loader->add_action( 'wp_ajax_portfoy_get_asset_performance', $plugin_admin, 'ajax_get_asset_performance' );
+
+		// Scheduled events for automatic price updates and snapshots
+		$this->loader->add_action( 'portfoy_takipx_hourly_update', $plugin_admin, 'bulk_update_prices' );
+		$this->loader->add_action( 'portfoy_takipx_daily_snapshot', $plugin_admin, 'generate_portfolio_snapshots' );
+
+		// Schedule cron events if not already scheduled
+		if ( ! wp_next_scheduled( 'portfoy_takipx_hourly_update' ) ) {
+			wp_schedule_event( time(), 'hourly', 'portfoy_takipx_hourly_update' );
+		}
+		
+		if ( ! wp_next_scheduled( 'portfoy_takipx_daily_snapshot' ) ) {
+			wp_schedule_event( time(), 'daily', 'portfoy_takipx_daily_snapshot' );
+		}
 	}
 
 	/**
