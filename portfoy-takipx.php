@@ -206,6 +206,8 @@ function portfoy_takipx_create_portfolio_page() {
 
 // Include core files
 require_once PORTFOY_TAKIPX_PLUGIN_DIR . 'includes/class-portfoy-takipx.php';
+require_once PORTFOY_TAKIPX_PLUGIN_DIR . 'includes/class-portfoy-takipx-cache.php';
+require_once PORTFOY_TAKIPX_PLUGIN_DIR . 'includes/class-portfoy-takipx-logger.php';
 require_once PORTFOY_TAKIPX_PLUGIN_DIR . 'includes/class-portfoy-takipx-api.php';
 require_once PORTFOY_TAKIPX_PLUGIN_DIR . 'includes/class-portfoy-takipx-reports.php';
 require_once PORTFOY_TAKIPX_PLUGIN_DIR . 'admin/class-portfoy-takipx-admin.php';
