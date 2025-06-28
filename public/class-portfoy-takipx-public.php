@@ -27,7 +27,11 @@ class Portfoy_TakipX_Public {
 	 * Register the stylesheets for the public-facing side of the site.
 	 */
 	public function enqueue_styles() {
+		// Enhanced modern public styles
 		wp_enqueue_style( $this->plugin_name, PORTFOY_TAKIPX_PLUGIN_URL . 'public/css/portfoy-takipx-public.css', array(), $this->version, 'all' );
+		
+		// Google Fonts for better typography
+		wp_enqueue_style( 'inter-font', 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap', array(), null );
 	}
 
 	/**

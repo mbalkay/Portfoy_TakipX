@@ -27,14 +27,25 @@ class Portfoy_TakipX_Admin {
 	 * Register the stylesheets for the admin area.
 	 */
 	public function enqueue_styles() {
+		// Original admin styles
 		wp_enqueue_style( $this->plugin_name, PORTFOY_TAKIPX_PLUGIN_URL . 'admin/css/portfoy-takipx-admin.css', array(), $this->version, 'all' );
+		
+		// Modern enhanced styles
+		wp_enqueue_style( $this->plugin_name . '-modern', PORTFOY_TAKIPX_PLUGIN_URL . 'admin/css/portfoy-takipx-modern.css', array(), $this->version, 'all' );
+		
+		// Google Fonts for better typography
+		wp_enqueue_style( 'inter-font', 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap', array(), null );
 	}
 
 	/**
 	 * Register the JavaScript for the admin area.
 	 */
 	public function enqueue_scripts() {
+		// Original admin script
 		wp_enqueue_script( $this->plugin_name, PORTFOY_TAKIPX_PLUGIN_URL . 'admin/js/portfoy-takipx-admin.js', array( 'jquery' ), $this->version, false );
+		
+		// Modern enhanced script with auto-fetch capabilities
+		wp_enqueue_script( $this->plugin_name . '-modern', PORTFOY_TAKIPX_PLUGIN_URL . 'admin/js/portfoy-takipx-modern.js', array( 'jquery', 'jquery-ui-autocomplete' ), $this->version, false );
 		
 		// Localize script for AJAX
 		wp_localize_script( $this->plugin_name, 'portfoy_takipx_admin', array(
@@ -184,7 +195,7 @@ class Portfoy_TakipX_Admin {
 		$assets_table->process_bulk_action();
 		$assets_table->prepare_items();
 
-		include_once PORTFOY_TAKIPX_PLUGIN_DIR . 'admin/partials/portfoy-takipx-admin-display-advanced.php';
+		include_once PORTFOY_TAKIPX_PLUGIN_DIR . 'admin/partials/portfoy-takipx-admin-display-modern.php';
 	}
 
 	/**

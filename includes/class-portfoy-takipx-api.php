@@ -19,6 +19,13 @@ class Portfoy_TakipX_API {
 	}
 
 	/**
+	 * Sanitize float value for REST API.
+	 */
+	public function sanitize_float( $value ) {
+		return floatval( $value );
+	}
+
+	/**
 	 * Register the REST API routes.
 	 */
 	public function register_routes() {
@@ -73,16 +80,16 @@ class Portfoy_TakipX_API {
 				),
 				'quantity' => array(
 					'required' => true,
-					'sanitize_callback' => 'floatval',
+					'sanitize_callback' => array( $this, 'sanitize_float' ),
 					'validate_callback' => array( $this, 'validate_positive_number' ),
 				),
 				'purchase_price' => array(
 					'required' => true,
-					'sanitize_callback' => 'floatval',
+					'sanitize_callback' => array( $this, 'sanitize_float' ),
 					'validate_callback' => array( $this, 'validate_positive_number' ),
 				),
 				'current_price' => array(
-					'sanitize_callback' => 'floatval',
+					'sanitize_callback' => array( $this, 'sanitize_float' ),
 					'validate_callback' => array( $this, 'validate_positive_number' ),
 				),
 				'purchase_date' => array(
@@ -93,7 +100,7 @@ class Portfoy_TakipX_API {
 					'sanitize_callback' => 'sanitize_text_field',
 				),
 				'commission' => array(
-					'sanitize_callback' => 'floatval',
+					'sanitize_callback' => array( $this, 'sanitize_float' ),
 				),
 				'notes' => array(
 					'sanitize_callback' => 'sanitize_textarea_field',
