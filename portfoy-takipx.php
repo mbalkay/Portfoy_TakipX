@@ -29,6 +29,10 @@ function activate_portfoy_takipx() {
 	// Create database tables
 	portfoy_takipx_create_tables();
 	
+	// Create authentication tables
+	$auth = new Portfoy_TakipX_Auth( 'portfoy-takipx', PORTFOY_TAKIPX_VERSION );
+	$auth->create_sessions_table();
+	
 	// Create portfolio page
 	portfoy_takipx_create_portfolio_page();
 	
@@ -206,6 +210,7 @@ function portfoy_takipx_create_portfolio_page() {
 
 // Include core files
 require_once PORTFOY_TAKIPX_PLUGIN_DIR . 'includes/class-portfoy-takipx.php';
+require_once PORTFOY_TAKIPX_PLUGIN_DIR . 'includes/class-portfoy-takipx-auth.php';
 require_once PORTFOY_TAKIPX_PLUGIN_DIR . 'includes/class-portfoy-takipx-cache.php';
 require_once PORTFOY_TAKIPX_PLUGIN_DIR . 'includes/class-portfoy-takipx-logger.php';
 require_once PORTFOY_TAKIPX_PLUGIN_DIR . 'includes/class-portfoy-takipx-api.php';

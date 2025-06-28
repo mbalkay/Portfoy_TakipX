@@ -16,11 +16,17 @@ class Portfoy_TakipX_Public {
 	private $version;
 
 	/**
+	 * The authentication handler.
+	 */
+	private $auth;
+
+	/**
 	 * Initialize the class and set its properties.
 	 */
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+		$this->auth = new Portfoy_TakipX_Auth( $plugin_name, $version );
 	}
 
 	/**
@@ -29,6 +35,9 @@ class Portfoy_TakipX_Public {
 	public function enqueue_styles() {
 		// Enhanced modern public styles
 		wp_enqueue_style( $this->plugin_name, PORTFOY_TAKIPX_PLUGIN_URL . 'public/css/portfoy-takipx-public.css', array(), $this->version, 'all' );
+		
+		// Authentication styles
+		wp_enqueue_style( $this->plugin_name . '-auth', PORTFOY_TAKIPX_PLUGIN_URL . 'public/css/portfoy-takipx-auth.css', array(), $this->version, 'all' );
 		
 		// Google Fonts for better typography
 		wp_enqueue_style( 'inter-font', 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap', array(), null );
@@ -40,6 +49,15 @@ class Portfoy_TakipX_Public {
 	public function enqueue_scripts() {
 		wp_enqueue_script( $this->plugin_name, PORTFOY_TAKIPX_PLUGIN_URL . 'public/js/portfoy-takipx-public.js', array( 'jquery' ), $this->version, false );
 		
+		// Authentication JavaScript
+		wp_enqueue_script( $this->plugin_name . '-auth', PORTFOY_TAKIPX_PLUGIN_URL . 'public/js/portfoy-takipx-auth.js', array( 'jquery' ), $this->version, false );
+		
+		// Dashboard JavaScript
+		wp_enqueue_script( $this->plugin_name . '-dashboard', PORTFOY_TAKIPX_PLUGIN_URL . 'public/js/portfoy-takipx-dashboard.js', array( 'jquery' ), $this->version, false );
+		
+		// Chart.js for dashboard charts
+		wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js', array(), '3.9.1', false );
+		
 		// Localize script for AJAX
 		wp_localize_script( $this->plugin_name, 'portfoy_takipx_public', array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
@@ -47,6 +65,7 @@ class Portfoy_TakipX_Public {
 			'rest_url' => rest_url( 'portfoy-takipx/v1/' ),
 			'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 			'is_user_logged_in' => is_user_logged_in(),
+			'auth_nonce' => wp_create_nonce( 'portfoy_auth_nonce' ),
 		) );
 	}
 
@@ -57,6 +76,7 @@ class Portfoy_TakipX_Public {
 		add_shortcode( 'portfoy_takipx_portfolio', array( $this, 'portfolio_shortcode' ) );
 		add_shortcode( 'portfoy_takipx_summary', array( $this, 'summary_shortcode' ) );
 		add_shortcode( 'portfoy_takipx_assets', array( $this, 'assets_shortcode' ) );
+		add_shortcode( 'portfoy_takipx_auth', array( $this, 'auth_shortcode' ) );
 	}
 
 	/**
@@ -68,8 +88,8 @@ class Portfoy_TakipX_Public {
 			'show_add_form' => is_user_logged_in() ? 'true' : 'false',
 		), $atts, 'portfoy_takipx_portfolio' );
 
-		if ( ! is_user_logged_in() ) {
-			return $this->login_message();
+		if ( ! $this->auth->is_user_authenticated() ) {
+			return $this->auth_shortcode();
 		}
 
 		ob_start();
@@ -86,8 +106,8 @@ class Portfoy_TakipX_Public {
 			'show_charts' => 'true',
 		), $atts, 'portfoy_takipx_summary' );
 
-		if ( ! is_user_logged_in() ) {
-			return $this->login_message();
+		if ( ! $this->auth->is_user_authenticated() ) {
+			return $this->auth_shortcode();
 		}
 
 		ob_start();
@@ -105,12 +125,25 @@ class Portfoy_TakipX_Public {
 			'user_id' => get_current_user_id(),
 		), $atts, 'portfoy_takipx_assets' );
 
-		if ( ! is_user_logged_in() ) {
-			return $this->login_message();
+		if ( ! $this->auth->is_user_authenticated() ) {
+			return $this->auth_shortcode();
 		}
 
 		ob_start();
 		include PORTFOY_TAKIPX_PLUGIN_DIR . 'templates/assets-list.php';
+		return ob_get_clean();
+	}
+
+	/**
+	 * Authentication shortcode callback.
+	 */
+	public function auth_shortcode( $atts = array() ) {
+		$atts = shortcode_atts( array(
+			'redirect' => '',
+		), $atts, 'portfoy_takipx_auth' );
+
+		ob_start();
+		include PORTFOY_TAKIPX_PLUGIN_DIR . 'templates/auth-page.php';
 		return ob_get_clean();
 	}
 
